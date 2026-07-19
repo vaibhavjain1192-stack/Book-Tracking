@@ -872,6 +872,180 @@ h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.2; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ─────────────────────────────────────────
+   BOOK APPLY SUMMARY (per-book detail view)
+───────────────────────────────────────── */
+.book-apply-summary {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.book-apply-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(200,169,110,0.25);
+}
+
+.book-apply-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+.book-apply-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--brass);
+  margin-bottom: 2px;
+}
+
+.book-apply-sub {
+  font-size: 0.72rem;
+  color: rgba(245,240,232,0.45);
+  font-style: italic;
+}
+
+.book-apply-list { display: flex; flex-direction: column; gap: 12px; }
+
+.book-apply-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.book-apply-num {
+  width: 22px; height: 22px;
+  background: rgba(200,169,110,0.2);
+  border: 1px solid rgba(200,169,110,0.4);
+  color: var(--brass);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.book-apply-text {
+  font-size: 0.88rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.book-apply-chapter {
+  font-size: 0.65rem;
+  color: rgba(200,169,110,0.6);
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─────────────────────────────────────────
+   APPLICATIONS / HOW I'LL APPLY — INSIGHTS
+───────────────────────────────────────── */
+.applications-section {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--brass);
+}
+
+.applications-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.applications-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
+
+.applications-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.applications-sub {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.applications-filter {
+  margin-left: auto;
+  border: 1px solid var(--parchment3);
+  background: var(--parchment);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+
+.applications-filter:focus { border-color: var(--brass); }
+
+.application-item {
+  border-bottom: 1px solid var(--parchment2);
+  padding: 14px 0;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.application-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.application-num {
+  width: 26px; height: 26px;
+  background: var(--brass-light);
+  color: var(--ink);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.application-body { flex: 1; min-width: 0; }
+
+.application-action {
+  font-size: 0.92rem;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.application-source {
+  font-size: 0.72rem;
+  color: var(--brass);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.application-learning {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.applications-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────
    INSIGHTS VIEW
 ───────────────────────────────────────── */
 .insights-grid {
@@ -1660,6 +1834,18 @@ hr { border: none; border-top: 1px solid var(--parchment3); margin: 16px 0; }
 
       <div class="progress-section" id="progress-section"></div>
 
+      <!-- HOW I'LL APPLY — per-book summary box -->
+      <div class="book-apply-summary" id="book-apply-summary" style="display:none">
+        <div class="book-apply-header">
+          <span class="book-apply-icon">📋</span>
+          <div>
+            <div class="book-apply-title">How I'll Apply This Book</div>
+            <div class="book-apply-sub">Your consolidated action plan from all chapters</div>
+          </div>
+        </div>
+        <div class="book-apply-list" id="book-apply-list"></div>
+      </div>
+
       <div class="learnings-container">
         <div class="learnings-toolbar">
           <h3>Key Learnings</h3>
@@ -1685,9 +1871,25 @@ hr { border: none; border-top: 1px solid var(--parchment3); margin: 16px 0; }
       <div class="view-hero">
         <div>
           <h2 class="view-title">Book Insights</h2>
-          <p class="view-sub">AI-powered reflections across your library</p>
+          <p class="view-sub">Reflections, applications and AI-powered patterns</p>
         </div>
       </div>
+
+      <!-- APPLICATION SUMMARY — always visible, no AI needed -->
+      <div class="applications-section" id="applications-section">
+        <div class="applications-header">
+          <span class="applications-icon">📋</span>
+          <div>
+            <h3 class="applications-title">How I'll Apply My Learnings</h3>
+            <p class="applications-sub">Your personal action plan — drawn from every book</p>
+          </div>
+          <select class="applications-filter" id="applications-book-filter">
+            <option value="all">All Books</option>
+          </select>
+        </div>
+        <div id="applications-list"></div>
+      </div>
+
       <div class="insights-grid" id="insights-grid">
         <div class="insight-prompt-card" id="cross-insight-card">
           <h3>🧠 What patterns exist across my books?</h3>
@@ -1980,23 +2182,29 @@ const state = {
   lastReadDate: null
 };
 
-// ── Load from localStorage ─────────────────
+// ── Load from localStorage (settings + streak ONLY — books always from sheet) ──
 function loadState() {
   try {
-    const books = localStorage.getItem('bs_books');
     const settings = localStorage.getItem('bs_settings');
-    const streak = localStorage.getItem('bs_streak');
+    const streak   = localStorage.getItem('bs_streak');
     const lastRead = localStorage.getItem('bs_lastRead');
-    if (books) state.books = JSON.parse(books);
+    // Clear any stale book cache so we always get fresh data from sheet
+    localStorage.removeItem('bs_books');
     if (settings) state.settings = { ...state.settings, ...JSON.parse(settings) };
-    if (streak) state.streak = parseInt(streak);
+    if (streak)   state.streak = parseInt(streak);
     if (lastRead) state.lastReadDate = lastRead;
   } catch (e) { console.warn('State load error', e); }
 }
 
 function saveState() {
-  localStorage.setItem('bs_books', JSON.stringify(state.books));
+  // Never persist books to localStorage — sheet is the single source of truth
   localStorage.setItem('bs_settings', JSON.stringify(state.settings));
+  localStorage.setItem('bs_streak', state.streak);
+  if (state.lastReadDate) localStorage.setItem('bs_lastRead', state.lastReadDate);
+}
+
+// Save only streak (called from updateStreak)
+function saveStreak() {
   localStorage.setItem('bs_streak', state.streak);
   if (state.lastReadDate) localStorage.setItem('bs_lastRead', state.lastReadDate);
 }
@@ -2012,7 +2220,7 @@ function updateStreak() {
     state.streak = 1;
   }
   state.lastReadDate = today;
-  saveState();
+  saveStreak();
 }
 
 // ── ID generator ───────────────────────────
@@ -2070,6 +2278,7 @@ function showView(viewId) {
   if (viewId === 'bookmarks') renderBookmarks();
   if (viewId === 'stats') renderStats();
   if (viewId === 'emotions') resetEmotions();
+  if (viewId === 'insights') renderApplications();
 
   // Close sidebar on mobile
   if (window.innerWidth <= 768) {
@@ -2116,11 +2325,14 @@ function init() {
   updateStreak();
   document.getElementById('reading-streak').querySelector('.streak-num').textContent = state.streak;
   setupDelegatedListeners();
-  renderSidebarBooks();
-  renderLibrary();
   setupFilters();
   setupSearch();
-  // Load data from Google Sheet in the background
+  // Show loading state immediately
+  const grid = document.getElementById('books-grid');
+  if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-soft)"><div style="font-size:2rem;margin-bottom:12px">☁</div><p>Loading your library from Google Sheets…</p></div>';
+  const emptyEl = document.getElementById('empty-library');
+  if (emptyEl) emptyEl.style.display = 'none';
+  // Load everything from sheet
   loadFromSheet();
 }
 
@@ -2178,38 +2390,28 @@ async function loadFromSheet() {
     if (data.status !== 'ok' || !Array.isArray(data.books)) { setSyncStatus('', false); return; }
     if (!data.books.length) { setSyncStatus('', false); return; }
 
-    // Merge sheet data into local state
-    // Sheet is source of truth for book metadata & learnings
-    // Local state preserves colour choices (not stored in sheet)
-    let changed = false;
-    data.books.forEach(sheetBook => {
-      const local = state.books.find(b => b.id === sheetBook.id);
-      if (local) {
-        // Merge: keep local colour, update everything else
-        sheetBook.color = local.color || sheetBook.color;
-        // Merge learnings — sheet wins for existing IDs, local adds new ones
-        const sheetIds = new Set(sheetBook.learnings.map(l => l.id));
-        const localOnly = (local.learnings || []).filter(l => !sheetIds.has(l.id));
-        sheetBook.learnings = [...sheetBook.learnings, ...localOnly];
-        // Replace the book in state
-        const idx = state.books.indexOf(local);
-        state.books[idx] = sheetBook;
-        changed = true;
-      } else {
-        // Book exists in sheet but not locally — add it
-        state.books.push(sheetBook);
-        changed = true;
-      }
-    });
+    // Sheet is the ONLY source of truth — replace state completely
+    // Preserve colour choices stored in memory (they're set when adding a book)
+    const colorMap = {};
+    state.books.forEach(b => { if (b.color) colorMap[b.id] = b.color; });
 
-    if (changed) {
-      saveState();
-      renderSidebarBooks();
-      renderLibrary();
-      setSyncStatus('☁ Loaded from sheet', false);
-      setTimeout(() => setSyncStatus('', false), 3000);
-    } else {
-      setSyncStatus('', false);
+    state.books = data.books.map(b => ({
+      ...b,
+      color: colorMap[b.id] || b.color || '#6B4E3D'
+    }));
+
+    renderSidebarBooks();
+    renderLibrary();
+    setSyncStatus('☁ Synced from sheet', false);
+    setTimeout(() => setSyncStatus('', false), 3000);
+
+    // If a book is open, refresh its view too
+    if (state.currentBookId) {
+      const book = state.books.find(b => b.id === state.currentBookId);
+      if (book) {
+        renderProgressSection(book);
+        renderLearnings(book, learningFilter);
+      }
     }
   } catch (e) {
     // Sheet load failure is non-fatal — local data still works
@@ -2253,13 +2455,13 @@ function renderLibrary(filter = currentFilter, search = '') {
 
   // Build only the book cards — nothing else goes in the grid
   grid.innerHTML = books.map(b => {
-    const pct = progressPct(b);
-    const chRead = getChaptersRead(b);
-    const stars = b.rating ? '★'.repeat(b.rating) + '☆'.repeat(5 - b.rating) : '';
+    const pct       = progressPct(b);
+    const uniqCount = getUniqueChaptersRead(b).length;
+    const stars     = b.rating ? '★'.repeat(b.rating) + '☆'.repeat(5 - b.rating) : '';
     const chBar = b.totalChapters ? `
       <div style='margin-top:10px'>
         <div style='display:flex;justify-content:space-between;font-size:0.68rem;color:var(--ink-soft);margin-bottom:4px'>
-          <span>Ch. ${chRead} of ${b.totalChapters}</span>
+          <span>${uniqCount} of ${b.totalChapters} ch. covered</span>
           <span>${pct}%</span>
         </div>
         <div style='height:4px;background:var(--parchment3);border-radius:2px;overflow:hidden'>
@@ -2375,13 +2577,12 @@ function saveBook() {
   };
 
   state.books.unshift(book);
-  saveState();
   closeModal('add-book-modal');
   renderSidebarBooks();
   renderLibrary();
   toast(`"${book.title}" added to your library`);
 
-  // Sync to Google Sheets
+  // Sync to Google Sheets (books NOT saved to localStorage)
   syncBookToSheet(book);
 }
 
@@ -2389,8 +2590,9 @@ function saveBook() {
 // ── Render Progress Section ─────────────────
 function renderProgressSection(book) {
   const pct = progressPct(book);
-  const chaptersRead = book.totalChapters ? getChaptersRead(book) : null;
   const uniqueChapters = getUniqueChaptersRead(book);
+  const uniqueCount = uniqueChapters.length;
+  const highestChapter = getChaptersRead(book); // highest ch number, for display
 
   // Chapter dot visualisation (only for books with ≤50 chapters)
   let dotsHtml = '';
@@ -2405,7 +2607,7 @@ function renderProgressSection(book) {
   }
 
   const chaptersLabel = book.totalChapters
-    ? `<span class="chapter-count-display" style="color:${book.color}">${chaptersRead}</span><span class="chapter-count-total"> / ${book.totalChapters} chapters</span>`
+    ? `<span class="chapter-count-display" style="color:${book.color}">${uniqueCount}</span><span class="chapter-count-total"> of ${book.totalChapters} chapters covered</span>`
     : `<span class="chapter-count-display" style="color:${book.color};font-size:1rem">${(book.learnings || []).length} learnings</span>`;
 
   const setChapBtn = !book.totalChapters
@@ -2443,11 +2645,44 @@ function renderProgressSection(book) {
     const n = parseInt(val);
     if (isNaN(n) || n < 1) { toast('Please enter a valid number', 'error'); return; }
     book.totalChapters = n;
-    saveState();
     renderProgressSection(book);
     populateChapterSelect(book);
     toast(`Set to ${n} chapters`);
+    // Sync chapter count + recalculated % to sheet
+    const pct = progressPct(book);
+    fetch(SHEET_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'updateProgress', bookId: book.id, totalChapters: n, pct })
+    }).catch(() => {});
   });
+}
+
+// ── Render Book Apply Summary ───────────────
+function renderBookSummary(book) {
+  const box  = document.getElementById('book-apply-summary');
+  const list = document.getElementById('book-apply-list');
+  if (!box || !list) return;
+
+  const applications = (book.learnings || [])
+    .filter(l => l.application && l.application.trim())
+    .sort((a, b) => (a.chapter || 999) - (b.chapter || 999));
+
+  if (!applications.length) {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = '';
+  list.innerHTML = applications.map((l, i) => `
+    <div class="book-apply-item">
+      <div class="book-apply-num">${i + 1}</div>
+      <div>
+        <div class="book-apply-text">${escHtml(l.application)}</div>
+        ${l.chapter ? `<div class="book-apply-chapter">Ch. ${l.chapter}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 function openBook(id) {
@@ -2469,6 +2704,9 @@ function openBook(id) {
   // Progress
   renderProgressSection(book);
 
+  // Apply summary
+  renderBookSummary(book);
+
   renderLearnings(book);
   renderSidebarBooks();
   showView('book-detail');
@@ -2479,30 +2717,34 @@ function openBook(id) {
 
 function progressPct(book) {
   if (book.status === 'completed') return 100;
-  if (book.status === 'want-to-read') return 0;
+
+  const uniqueRead = getUniqueChaptersRead(book).length;
+
+  // Always show real progress if chapters have been logged,
+  // regardless of status (book may still be "Want to Read" even after logging)
   if (!book.totalChapters) {
-    // Fallback: estimate from learnings count
-    const total = (book.learnings || []).length;
-    return total > 0 ? Math.min(95, 10 + total * 5) : 5;
+    return uniqueRead > 0 ? Math.min(95, Math.round(uniqueRead * 10)) : 0;
   }
-  const chaptersRead = getChaptersRead(book);
-  return Math.round((chaptersRead / book.totalChapters) * 100);
+
+  if (!uniqueRead) return 0;
+  return Math.min(100, Math.round((uniqueRead / book.totalChapters) * 100));
 }
 
 function getChaptersRead(book) {
-  // Find the highest chapter number referenced in learnings
+  // Returns the HIGHEST chapter number logged (used for display "Ch. X of Y")
   const chapters = (book.learnings || [])
     .map(l => l.chapter)
-    .filter(c => c != null && !isNaN(c));
+    .filter(c => c != null && !isNaN(c) && c > 0);
   if (!chapters.length) return 0;
   return Math.max(...chapters);
 }
 
 function getUniqueChaptersRead(book) {
+  // Returns sorted array of unique chapter numbers that have at least one learning
   const seen = new Set((book.learnings || [])
     .map(l => l.chapter)
-    .filter(c => c != null && !isNaN(c)));
-  return [...seen].sort((a,b) => a-b);
+    .filter(c => c != null && !isNaN(c) && c > 0));
+  return [...seen].sort((a, b) => a - b);
 }
 
 // ── Render Learnings ───────────────────────
@@ -2561,7 +2803,6 @@ function toggleBookmark(bookId, learningId) {
   const l = book?.learnings?.find(x => x.id === learningId);
   if (!l) return;
   l.bookmarked = !l.bookmarked;
-  saveState();
   renderLearnings(book, learningFilter);
   toast(l.bookmarked ? 'Bookmarked!' : 'Bookmark removed');
 }
@@ -2570,7 +2811,6 @@ function deleteLearning(bookId, learningId) {
   const book = state.books.find(b => b.id === bookId);
   if (!book) return;
   book.learnings = book.learnings.filter(l => l.id !== learningId);
-  saveState();
   renderLearnings(book, learningFilter);
   toast('Learning deleted');
 }
@@ -2681,14 +2921,16 @@ function saveLearning() {
   // Update status if still want-to-read
   if (book.status === 'want-to-read') book.status = 'reading';
 
-  saveState();
   updateStreak();
   document.getElementById('reading-streak').querySelector('.streak-num').textContent = state.streak;
   closeModal('add-learning-modal');
   renderLearnings(book, learningFilter);
-  openBook(book.id); // refresh progress
+  renderProgressSection(book); // refresh progress bar immediately
+  renderBookSummary(book);     // refresh apply summary
   toast('Learning saved!');
 
+  // Sync to sheet — also push totalChapters if set
+  if (book.totalChapters) syncBookToSheet(book); // keeps chapter count in sync
   syncLearningToSheet(book, learning);
 }
 
@@ -2804,6 +3046,50 @@ async function showEmotionResults(emotion) {
     const insight = await callClaude(`The user felt "${emotion}" while reading. Here are the learnings that evoked this emotion:\n\n- ${allTexts}\n\nGive a thoughtful, personal reflection (3-4 sentences) on what this emotion pattern reveals about the user's growth and values. Be specific and warm.`);
     document.querySelector('.emotion-ai-box').innerHTML = `<strong style="color:var(--brass)">✨ Reflection on "${emotion}"</strong><br/><br/>${escHtml(insight)}`;
   }
+}
+
+// ── Render "How I'll Apply" summary ────────
+function renderApplications(filterBookId = 'all') {
+  const list = document.getElementById('applications-list');
+  const filter = document.getElementById('applications-book-filter');
+
+  // Populate filter dropdown with current books
+  if (filter) {
+    const currentVal = filterBookId !== 'all' ? filterBookId : (filter.value || 'all');
+    filter.innerHTML = '<option value="all">All Books</option>' +
+      state.books
+        .filter(b => (b.learnings || []).some(l => l.application && l.application.trim()))
+        .map(b => `<option value="${b.id}" ${currentVal === b.id ? 'selected' : ''}>${escHtml(b.title)}</option>`)
+        .join('');
+    filter.onchange = () => renderApplications(filter.value);
+  }
+
+  // Collect all applications
+  const items = [];
+  state.books.forEach(book => {
+    if (filter && filter.value !== 'all' && book.id !== filter.value) return;
+    (book.learnings || []).forEach(l => {
+      if (l.application && l.application.trim()) {
+        items.push({ book, learning: l });
+      }
+    });
+  });
+
+  if (!items.length) {
+    list.innerHTML = '<div class="applications-empty">No application notes yet.<br>When adding a learning, fill in "How will you apply this?" to see your action plan here.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map((item, i) => `
+    <div class="application-item">
+      <div class="application-num">${i + 1}</div>
+      <div class="application-body">
+        <div class="application-action">${escHtml(item.learning.application)}</div>
+        <div class="application-source">${escHtml(item.book.title)}${item.learning.chapter ? ' · Ch. ' + item.learning.chapter : ''}</div>
+        <div class="application-learning">${escHtml(item.learning.text)}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
 // ── AI Insights View ───────────────────────
