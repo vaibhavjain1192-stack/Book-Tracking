@@ -1,0 +1,2991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BookShelf — Your Personal Reading Journal</title>
+  <style>
+/* ─────────────────────────────────────────
+   BookShelf — Design System
+   Palette: Deep Ink (#1A1A2E), Aged Parchment (#F5F0E8),
+            Brass (#C8A96E), Forest (#2D6A4F), Blush (#E8B4A0)
+   Type: Playfair Display (display) / Inter (body) / JetBrains Mono (code)
+───────────────────────────────────────── */
+
+:root {
+  --ink:        #1A1A2E;
+  --ink-mid:    #2E2E4A;
+  --ink-soft:   #4A4A6A;
+  --parchment:  #F5F0E8;
+  --parchment2: #EDE8DC;
+  --parchment3: #E0D9CC;
+  --brass:      #C8A96E;
+  --brass-light:#E8D4A8;
+  --forest:     #2D6A4F;
+  --forest-lt:  #52B788;
+  --blush:      #E8B4A0;
+  --blush-dark: #C07860;
+  --white:      #FFFFFF;
+  --danger:     #C0392B;
+  --sidebar-w:  260px;
+  --radius:     12px;
+  --radius-lg:  20px;
+  --shadow:     0 4px 24px rgba(26,26,46,0.10);
+  --shadow-lg:  0 8px 40px rgba(26,26,46,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--parchment2); }
+::-webkit-scrollbar-thumb { background: var(--brass); border-radius: 3px; }
+
+/* ── Typography ── */
+h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.2; }
+
+
+/* ─────────────────────────────────────────
+   CHAPTER PROGRESS
+───────────────────────────────────────── */
+.chapter-progress-block {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.chapter-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.chapter-progress-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.chapter-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chapter-count-display {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.chapter-count-total {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.chapter-progress-bar-bg {
+  height: 10px;
+  background: var(--parchment2);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.chapter-progress-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.chapter-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.chapter-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.chapter-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--parchment3);
+  background: var(--parchment2);
+  transition: all 0.2s;
+  cursor: default;
+  position: relative;
+}
+
+.chapter-dot.done {
+  border-color: transparent;
+}
+
+.chapter-dot.current {
+  border-color: var(--brass);
+  background: var(--brass-light);
+  box-shadow: 0 0 0 2px rgba(200,169,110,0.25);
+}
+
+.chapter-dot:hover .chapter-dot-tip {
+  display: block;
+}
+
+.chapter-dot-tip {
+  display: none;
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--parchment);
+  font-size: 0.65rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.set-chapters-btn {
+  background: none;
+  border: 1px dashed var(--parchment3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.set-chapters-btn:hover {
+  border-color: var(--brass);
+  color: var(--ink);
+  background: var(--parchment2);
+}
+
+.intention-box {
+  flex: 1;
+  background: var(--parchment);
+  border-left: 3px solid var(--brass);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 12px;
+}
+
+/* Chapter select in learning modal */
+.chapter-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chapter-select-row select {
+  flex: 1;
+}
+
+.chapter-badge-inline {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--parchment2);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────
+   SCREENS
+───────────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Setup screen removed */
+
+/* ─────────────────────────────────────────
+   APP LAYOUT
+───────────────────────────────────────── */
+#app-screen {
+  display: none;
+  min-height: 100vh;
+}
+
+#app-screen.active { display: flex; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 200;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(200,169,110,0.2);
+}
+
+.brand-icon-sm { font-size: 1.4rem; }
+.brand-name-sm {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--brass);
+  flex: 1;
+}
+
+.sidebar-close {
+  background: none; border: none; color: rgba(245,240,232,0.4);
+  cursor: pointer; font-size: 1rem; display: none;
+}
+
+.sidebar-nav {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(200,169,110,0.15);
+}
+
+.nav-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: rgba(245,240,232,0.65);
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-item:hover { background: rgba(200,169,110,0.12); color: var(--parchment); }
+.nav-item.active { background: rgba(200,169,110,0.2); color: var(--brass); }
+.nav-icon { font-size: 1rem; }
+
+.sidebar-books {
+  flex: 1;
+  padding: 12px 8px;
+  overflow-y: auto;
+}
+
+.sidebar-section-label {
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+  color: rgba(245,240,232,0.35);
+  padding: 0 8px 6px;
+  font-weight: 600;
+}
+
+.sidebar-book-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgba(245,240,232,0.7);
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.sidebar-book-item:hover { background: rgba(200,169,110,0.1); color: var(--parchment); }
+.sidebar-book-item.active { background: rgba(200,169,110,0.2); color: var(--brass); }
+
+.sidebar-book-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid rgba(200,169,110,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(245,240,232,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--parchment3);
+  padding: 0 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 100;
+}
+
+.hamburger {
+  display: none;
+  background: none; border: none;
+  font-size: 1.2rem; cursor: pointer;
+  color: var(--ink);
+}
+
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--ink);
+  flex: 1;
+}
+
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+.icon-btn {
+  background: var(--parchment2);
+  border: 1px solid var(--parchment3);
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  color: var(--ink-soft);
+}
+
+.icon-btn:hover { background: var(--parchment3); }
+
+.sync-status {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+/* ─────────────────────────────────────────
+   VIEWS
+───────────────────────────────────────── */
+.view { display: none; padding: 32px 28px; flex: 1; }
+.view.active { display: block; }
+
+.view-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+
+.view-title {
+  font-size: 2rem;
+  color: var(--ink);
+}
+
+.view-sub {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Reading streak */
+.reading-streak {
+  background: var(--ink);
+  color: var(--parchment);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  text-align: center;
+  min-width: 90px;
+}
+
+.streak-num {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--brass);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 0.7rem;
+  color: rgba(245,240,232,0.6);
+  letter-spacing: 0.5px;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.filter-chip {
+  background: var(--parchment2);
+  border: 1px solid var(--parchment3);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.filter-chip:hover { border-color: var(--brass); color: var(--ink); }
+.filter-chip.active {
+  background: var(--ink);
+  color: var(--brass);
+  border-color: var(--ink);
+}
+
+.search-input {
+  margin-left: auto;
+  border: 1px solid var(--parchment3);
+  background: var(--white);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+  outline: none;
+  width: 200px;
+  transition: all 0.2s;
+}
+
+.search-input:focus { border-color: var(--brass); box-shadow: 0 0 0 3px rgba(200,169,110,0.15); }
+
+/* Books Grid */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.book-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+  position: relative;
+}
+
+.book-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.book-card-spine {
+  height: 8px;
+  width: 100%;
+}
+
+.book-card-body {
+  padding: 18px;
+}
+
+.book-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.book-card-author {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.book-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.status-reading { background: #EBF9F0; color: #2D6A4F; }
+.status-completed { background: #EBF0F9; color: #2D4A6A; }
+.status-want-to-read { background: #F9F3EB; color: #6A4A2D; }
+
+.book-card-learnings {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.book-card-genre {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ink-soft);
+}
+
+.empty-icon { font-size: 3.5rem; margin-bottom: 16px; }
+.empty-state h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--ink); }
+.empty-state p { font-size: 0.9rem; margin-bottom: 20px; }
+
+/* ─────────────────────────────────────────
+   BOOK DETAIL VIEW
+───────────────────────────────────────── */
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--parchment3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.back-btn:hover { border-color: var(--brass); color: var(--ink); }
+
+.detail-book-info { flex: 1; }
+
+.detail-book-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.detail-book-author {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+.detail-book-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+/* Progress section */
+.progress-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.progress-label {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  min-width: 160px;
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: var(--parchment2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.intention-box {
+  flex: 1;
+  background: var(--parchment);
+  border-left: 3px solid var(--brass);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* Learnings list */
+.learnings-container { }
+
+.learnings-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.learnings-toolbar h3 {
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.learning-filters { display: flex; gap: 8px; }
+
+.lfilter {
+  background: var(--parchment2);
+  border: 1px solid var(--parchment3);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.lfilter.active { background: var(--ink); color: var(--brass); border-color: var(--ink); }
+
+.learning-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(26,26,46,0.06);
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.learning-card:hover { box-shadow: var(--shadow); }
+
+.learning-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.learning-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cat-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--parchment2);
+  color: var(--ink-soft);
+}
+
+.emo-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--parchment);
+  color: var(--ink-soft);
+}
+
+.page-badge {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink-soft);
+}
+
+.learning-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.action-mini-btn {
+  background: none;
+  border: 1px solid var(--parchment3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+}
+
+.action-mini-btn:hover { border-color: var(--brass); color: var(--ink); }
+.action-mini-btn.bookmarked { background: var(--brass-light); border-color: var(--brass); }
+
+.learning-text {
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.learning-application {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  border-left: 2px solid var(--brass);
+  padding-left: 10px;
+  margin-top: 8px;
+}
+
+.learning-date {
+  font-size: 0.7rem;
+  color: var(--parchment3);
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* AI Insight Panel */
+.ai-insight-panel {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 380px;
+  background: var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+  overflow: hidden;
+}
+
+.insight-header {
+  background: rgba(200,169,110,0.15);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--brass);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.close-insight {
+  background: none; border: none;
+  color: rgba(245,240,232,0.5);
+  cursor: pointer; font-size: 1rem;
+}
+
+.insight-body {
+  padding: 18px;
+  color: rgba(245,240,232,0.85);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brass);
+  font-style: italic;
+}
+
+.thinking::before {
+  content: '';
+  width: 12px; height: 12px;
+  border: 2px solid var(--brass);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────
+   INSIGHTS VIEW
+───────────────────────────────────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.insight-prompt-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.insight-prompt-card h3 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.insight-result {
+  margin-top: 16px;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ─────────────────────────────────────────
+   BOOKMARKS VIEW
+───────────────────────────────────────── */
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.bookmark-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--brass);
+}
+
+.bookmark-book-name {
+  font-size: 0.75rem;
+  color: var(--brass);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.bookmark-text {
+  font-size: 0.92rem;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────
+   EMOTIONS VIEW
+───────────────────────────────────────── */
+.emotion-selector { margin-bottom: 28px; }
+.emotion-selector p { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 14px; }
+
+.emotion-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.emotion-btn {
+  background: var(--white);
+  border: 1px solid var(--parchment3);
+  border-radius: 20px;
+  padding: 8px 18px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.emotion-btn:hover { border-color: var(--brass); background: var(--parchment2); color: var(--ink); }
+.emotion-btn.active { background: var(--ink); color: var(--brass); border-color: var(--ink); }
+
+.emotion-results { }
+
+.emotion-book-group { margin-bottom: 24px; }
+.emotion-book-group h3 { font-size: 1rem; margin-bottom: 10px; }
+
+.emotion-learning-item {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 8px;
+  font-size: 0.87rem;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(26,26,46,0.05);
+  line-height: 1.6;
+}
+
+/* AI insight in emotions */
+.emotion-ai-box {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 18px;
+  color: rgba(245,240,232,0.85);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin-top: 16px;
+}
+
+/* ─────────────────────────────────────────
+   STATS VIEW
+───────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.5px;
+}
+
+.reading-timeline {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.reading-timeline h3 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--parchment2);
+  margin-bottom: 16px;
+}
+
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.timeline-title { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+.timeline-meta { font-size: 0.75rem; color: var(--ink-soft); margin-top: 2px; }
+
+/* ─────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────── */
+.btn-primary {
+  background: var(--ink);
+  color: var(--brass);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-primary:hover { background: var(--ink-mid); transform: translateY(-1px); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--parchment3);
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+.btn-sm {
+  background: var(--ink);
+  color: var(--brass);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-sm:hover { background: var(--ink-mid); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--parchment3);
+}
+
+.btn-outline:hover { background: var(--parchment2); border-color: var(--ink); }
+
+.btn-add-book {
+  background: var(--brass);
+  color: var(--ink);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-add-book:hover { background: var(--brass-light); }
+
+.settings-btn {
+  background: transparent;
+  border: 1px solid rgba(200,169,110,0.2);
+  color: rgba(245,240,232,0.5);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.settings-btn:hover { color: var(--parchment); border-color: rgba(200,169,110,0.4); }
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─────────────────────────────────────────
+   FORMS
+───────────────────────────────────────── */
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.input-group input[type="text"],
+.input-group input[type="url"],
+.input-group input[type="password"],
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  border: 1px solid var(--parchment3);
+  background: var(--parchment);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
+}
+
+.input-group textarea { resize: vertical; }
+
+.input-group small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem !important;
+  color: var(--ink) !important;
+}
+
+/* Star rating */
+.star-rating { display: flex; gap: 4px; margin-top: 4px; }
+
+.star {
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--parchment3);
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.star.lit { color: var(--brass); }
+
+/* Color picker */
+.color-picker-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.color-swatch {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.color-swatch.selected { border-color: var(--ink); transform: scale(1.15); }
+
+/* Emotion mini grid */
+.emotion-mini-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.emo-chip {
+  background: var(--parchment2);
+  border: 1px solid var(--parchment3);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.emo-chip:hover { border-color: var(--brass); background: var(--parchment); color: var(--ink); }
+.emo-chip.selected { background: var(--ink); color: var(--brass); border-color: var(--ink); }
+
+/* ─────────────────────────────────────────
+   MODALS
+───────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,46,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--parchment);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-lg { max-width: 580px; }
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--parchment3);
+}
+
+.modal-header h3 { font-size: 1.2rem; }
+
+.modal-close {
+  background: none; border: none;
+  font-size: 1.1rem; cursor: pointer;
+  color: var(--ink-soft);
+  line-height: 1;
+}
+
+.modal-body { padding: 24px; }
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--parchment3);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+hr { border: none; border-top: 1px solid var(--parchment3); margin: 16px 0; }
+
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  transition: transform 0.3s ease;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success::before { content: '✓ '; color: var(--forest-lt); }
+.toast.error::before { content: '✕ '; color: var(--blush); }
+
+/* Bottom nav — hidden on desktop, shown on mobile via JS */
+.bottom-nav { display: none; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — TABLET
+───────────────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 220px; }
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — MOBILE (≤768px)
+   Bottom nav replaces sidebar nav on mobile
+───────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Sidebar slides off-screen by default */
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 400;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 40px rgba(26,26,46,0.35);
+  }
+  .sidebar-close { display: flex !important; }
+
+  /* Main fills full width, padded for bottom nav */
+  .main {
+    margin-left: 0;
+    padding-bottom: 68px; /* space for bottom nav */
+  }
+
+  /* Topbar */
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  .topbar { padding: 0 16px; height: 52px; }
+  .topbar-title { font-size: 1rem; }
+
+  /* Bottom nav bar */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--ink);
+    border-top: 1px solid rgba(200,169,110,0.2);
+    z-index: 300;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: rgba(245,240,232,0.45);
+    font-size: 0.6rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 4px;
+    transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-item .bnav-icon { font-size: 1.3rem; line-height: 1; }
+  .bottom-nav-item.active { color: var(--brass); }
+  .bottom-nav-item:active { opacity: 0.7; }
+
+  /* Bottom nav FAB (add book) */
+  .bottom-nav-fab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fab-btn {
+    width: 44px; height: 44px;
+    background: var(--brass);
+    border: none;
+    border-radius: 50%;
+    color: var(--ink);
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(200,169,110,0.4);
+    -webkit-tap-highlight-color: transparent;
+    margin-top: -14px;
+  }
+
+  /* Views */
+  .view { padding: 16px 14px 20px; }
+
+  /* Books grid */
+  .books-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Book cards — bigger tap targets */
+  .book-card-body { padding: 14px; }
+  .book-card-title { font-size: 0.95rem; }
+
+  /* Detail view */
+  .detail-header { flex-direction: column; gap: 12px; }
+  .detail-actions { flex-direction: row; gap: 8px; }
+  .detail-book-title { font-size: 1.4rem; }
+
+  /* Progress section stacks */
+  .progress-section { flex-direction: column; align-items: stretch; gap: 12px; }
+
+  /* AI insight panel — full-width bottom sheet */
+  .ai-insight-panel {
+    width: 100%;
+    right: 0; left: 0; bottom: 68px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 60vh;
+  }
+
+  /* Grids */
+  .insights-grid { grid-template-columns: 1fr; gap: 12px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .bookmarks-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Forms */
+  .input-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Hero */
+  .view-hero { flex-direction: column; gap: 12px; }
+  .view-title { font-size: 1.6rem; }
+
+  /* Filter bar scrollable */
+  .filter-bar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip { flex-shrink: 0; }
+  .search-input { min-width: 140px; width: auto; flex-shrink: 0; }
+
+  /* Modals — slide up from bottom on mobile */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-width: 100%;
+    max-height: 92vh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation: slideUpModal 0.3s ease;
+  }
+  .modal-lg { max-width: 100%; }
+
+  @keyframes slideUpModal {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Emotion grid wraps nicely */
+  .emotion-grid { gap: 8px; }
+  .emotion-btn { padding: 8px 14px; font-size: 0.82rem; }
+
+  /* Touch-friendly buttons */
+  .btn-primary, .btn-ghost { padding: 14px 20px; font-size: 0.88rem; }
+  .btn-sm { padding: 10px 14px; }
+  .action-mini-btn { padding: 8px 10px; font-size: 0.9rem; }
+
+  /* Streak widget smaller */
+  .reading-streak { padding: 10px 16px; min-width: 76px; }
+  .streak-num { font-size: 1.6rem; }
+
+  /* Stat cards */
+  .stat-card { padding: 16px 12px; }
+  .stat-num { font-size: 1.8rem; }
+}
+
+@media (max-width: 480px) {
+  .books-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .topbar-title { font-size: 0.9rem; }
+}
+
+/* Safe-area support for notched phones */
+@supports (padding: max(0px)) {
+  .main { padding-bottom: max(68px, calc(56px + env(safe-area-inset-bottom))); }
+  .bottom-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
+}
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ───── MAIN APP ───── -->
+<div id="app-screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="brand-icon-sm">📚</span>
+      <span class="brand-name-sm">BookShelf</span>
+      <button class="sidebar-close" id="sidebar-close">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="library">
+        <span class="nav-icon">🏛️</span> Library
+      </button>
+      <button class="nav-item" data-view="insights">
+        <span class="nav-icon">✨</span> Insights
+      </button>
+      <button class="nav-item" data-view="bookmarks">
+        <span class="nav-icon">🔖</span> Bookmarks
+      </button>
+      <button class="nav-item" data-view="emotions">
+        <span class="nav-icon">🎭</span> Mood Board
+      </button>
+      <button class="nav-item" data-view="stats">
+        <span class="nav-icon">📊</span> My Stats
+      </button>
+    </nav>
+
+    <div class="sidebar-books" id="sidebar-books">
+      <p class="sidebar-section-label">YOUR BOOKS</p>
+      <div id="book-list-sidebar"></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-add-book" id="add-book-btn">+ Add Book</button>
+      <button class="settings-btn" id="settings-btn">⚙ Settings</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="topbar-title" id="topbar-title">My Library</div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="sync-btn" title="Sync to Google Sheets">☁</button>
+        <div class="sync-status" id="sync-status"></div>
+      </div>
+    </header>
+
+    <!-- LIBRARY VIEW -->
+    <section class="view active" id="view-library">
+      <div class="view-hero">
+        <div>
+          <h2 class="view-title" id="greeting">Good morning</h2>
+          <p class="view-sub">What will you learn today?</p>
+        </div>
+        <div class="reading-streak" id="reading-streak">
+          <span class="streak-num">0</span>
+          <span class="streak-label">day streak</span>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="reading">Reading</button>
+        <button class="filter-chip" data-filter="completed">Completed</button>
+        <button class="filter-chip" data-filter="want-to-read">Want to Read</button>
+        <input class="search-input" id="search-input" placeholder="Search books…" />
+      </div>
+
+      <div class="books-grid" id="books-grid"></div>
+      <div class="empty-state" id="empty-library" style="display:none">
+        <div class="empty-icon">📖</div>
+        <h3>Your library is empty</h3>
+        <p>Add your first book and start capturing wisdom.</p>
+        <button class="btn-primary" id="empty-add-btn">Add First Book</button>
+      </div>
+    </section>
+
+    <!-- BOOK DETAIL VIEW -->
+    <section class="view" id="view-book-detail">
+      <div class="detail-header">
+        <button class="back-btn" id="back-to-library">← Library</button>
+        <div class="detail-book-info" id="detail-book-info"></div>
+        <div class="detail-actions">
+          <button class="btn-sm" id="add-learning-btn">+ Add Learning</button>
+          <button class="btn-sm btn-outline" id="get-insight-btn">✨ AI Insight</button>
+        </div>
+      </div>
+
+      <div class="progress-section" id="progress-section"></div>
+
+      <div class="learnings-container">
+        <div class="learnings-toolbar">
+          <h3>Key Learnings</h3>
+          <div class="learning-filters">
+            <button class="lfilter active" data-lfilter="all">All</button>
+            <button class="lfilter" data-lfilter="bookmarked">🔖 Bookmarked</button>
+          </div>
+        </div>
+        <div id="learnings-list"></div>
+      </div>
+
+      <div class="ai-insight-panel" id="ai-insight-panel" style="display:none">
+        <div class="insight-header">
+          <span>✨ AI Insight</span>
+          <button class="close-insight" id="close-insight">✕</button>
+        </div>
+        <div class="insight-body" id="insight-body"><span class="thinking">Generating insight…</span></div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS VIEW -->
+    <section class="view" id="view-insights">
+      <div class="view-hero">
+        <div>
+          <h2 class="view-title">Book Insights</h2>
+          <p class="view-sub">AI-powered reflections across your library</p>
+        </div>
+      </div>
+      <div class="insights-grid" id="insights-grid">
+        <div class="insight-prompt-card" id="cross-insight-card">
+          <h3>🧠 What patterns exist across my books?</h3>
+          <button class="btn-primary" id="cross-insight-btn">Generate Cross-Book Insight</button>
+          <div class="insight-result" id="cross-insight-result"></div>
+        </div>
+        <div class="insight-prompt-card">
+          <h3>🎯 What should I focus on next?</h3>
+          <button class="btn-primary" id="next-focus-btn">Get Recommendation</button>
+          <div class="insight-result" id="next-focus-result"></div>
+        </div>
+        <div class="insight-prompt-card">
+          <h3>💡 A random wisdom from your shelf</h3>
+          <button class="btn-primary" id="random-wisdom-btn">Surprise Me</button>
+          <div class="insight-result" id="random-wisdom-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKMARKS VIEW -->
+    <section class="view" id="view-bookmarks">
+      <div class="view-hero">
+        <h2 class="view-title">🔖 Bookmarks</h2>
+        <p class="view-sub">Your most important learnings, all in one place</p>
+      </div>
+      <div id="bookmarks-list" class="bookmarks-grid"></div>
+    </section>
+
+    <!-- EMOTIONS / MOOD BOARD VIEW -->
+    <section class="view" id="view-emotions">
+      <div class="view-hero">
+        <h2 class="view-title">🎭 Mood Board</h2>
+        <p class="view-sub">How have your books made you feel?</p>
+      </div>
+      <div class="emotion-selector" id="emotion-selector">
+        <p>Select an emotion to find books that evoked it:</p>
+        <div class="emotion-grid">
+          <button class="emotion-btn" data-emotion="Inspired">🚀 Inspired</button>
+          <button class="emotion-btn" data-emotion="Calm">🌿 Calm</button>
+          <button class="emotion-btn" data-emotion="Challenged">🧩 Challenged</button>
+          <button class="emotion-btn" data-emotion="Curious">🔍 Curious</button>
+          <button class="emotion-btn" data-emotion="Motivated">⚡ Motivated</button>
+          <button class="emotion-btn" data-emotion="Grateful">🙏 Grateful</button>
+          <button class="emotion-btn" data-emotion="Reflective">🪞 Reflective</button>
+          <button class="emotion-btn" data-emotion="Joyful">😄 Joyful</button>
+          <button class="emotion-btn" data-emotion="Melancholic">🌧 Melancholic</button>
+          <button class="emotion-btn" data-emotion="Empowered">💪 Empowered</button>
+        </div>
+      </div>
+      <div id="emotion-results" class="emotion-results"></div>
+    </section>
+
+    <!-- STATS VIEW -->
+    <section class="view" id="view-stats">
+      <div class="view-hero">
+        <h2 class="view-title">📊 My Reading Stats</h2>
+        <p class="view-sub">Your growth, by the numbers</p>
+      </div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="reading-timeline" id="reading-timeline"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ───── MODALS ───── -->
+
+<!-- Add Book Modal -->
+<div class="modal-overlay" id="add-book-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add a Book</h3>
+      <button class="modal-close" data-modal="add-book-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Book Title *</label>
+        <input type="text" id="book-title" placeholder="e.g. Atomic Habits" />
+      </div>
+      <div class="input-group">
+        <label>Author *</label>
+        <input type="text" id="book-author" placeholder="e.g. James Clear" />
+      </div>
+      <div class="input-group">
+        <label>Genre</label>
+        <select id="book-genre">
+          <option value="">Select genre</option>
+          <option>Self-Help</option>
+          <option>Business</option>
+          <option>Psychology</option>
+          <option>Philosophy</option>
+          <option>Biography</option>
+          <option>Science</option>
+          <option>Fiction</option>
+          <option>History</option>
+          <option>Spirituality</option>
+          <option>Technology</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Status</label>
+          <select id="book-status">
+            <option value="want-to-read">Want to Read</option>
+            <option value="reading">Currently Reading</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Rating (1–5)</label>
+          <div class="star-rating" id="book-rating-stars">
+            <span class="star" data-val="1">★</span>
+            <span class="star" data-val="2">★</span>
+            <span class="star" data-val="3">★</span>
+            <span class="star" data-val="4">★</span>
+            <span class="star" data-val="5">★</span>
+          </div>
+          <input type="hidden" id="book-rating" value="0" />
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Cover Colour (used as accent)</label>
+        <div class="color-picker-row">
+          <div class="color-swatch" data-color="#6B4E3D" style="background:#6B4E3D"></div>
+          <div class="color-swatch" data-color="#3D6B5E" style="background:#3D6B5E"></div>
+          <div class="color-swatch" data-color="#4A4E6B" style="background:#4A4E6B"></div>
+          <div class="color-swatch" data-color="#6B5E3D" style="background:#6B5E3D"></div>
+          <div class="color-swatch" data-color="#6B3D4E" style="background:#6B3D4E"></div>
+          <div class="color-swatch" data-color="#3D5A6B" style="background:#3D5A6B"></div>
+          <div class="color-swatch" data-color="#5E6B3D" style="background:#5E6B3D"></div>
+          <div class="color-swatch" data-color="#6B4A3D" style="background:#6B4A3D"></div>
+        </div>
+        <input type="hidden" id="book-color" value="#6B4E3D" />
+      </div>
+      <div class="input-group">
+        <label>Total Chapters</label>
+        <input type="number" id="book-chapters" min="1" max="999" placeholder="e.g. 18" />
+        <small>Used to track reading progress chapter by chapter.</small>
+      </div>
+      <div class="input-group">
+        <label>Why do you want to read this? (intention)</label>
+        <textarea id="book-intention" rows="2" placeholder="What do you hope to learn or feel?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" data-modal="add-book-modal">Cancel</button>
+      <button class="btn-primary" id="save-book-btn">Add to Library</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Learning Modal -->
+<div class="modal-overlay" id="add-learning-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Capture a Learning</h3>
+      <button class="modal-close" data-modal="add-learning-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Key Learning *</label>
+        <textarea id="learning-text" rows="4" placeholder="What did you learn, realise or want to remember?"></textarea>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Chapter <span id="learning-chapter-hint" style="color:var(--brass);font-size:0.72rem"></span></label>
+          <div class="chapter-select-row">
+            <select id="learning-chapter">
+              <option value="">Select chapter…</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Category</label>
+          <select id="learning-category">
+            <option value="Insight">💡 Insight</option>
+            <option value="Quote">💬 Quote</option>
+            <option value="Action">✅ Action Item</option>
+            <option value="Question">❓ Question</option>
+            <option value="Concept">🧠 Concept</option>
+            <option value="Story">📖 Story</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Emotion this learning evoked</label>
+        <div class="emotion-mini-grid" id="learning-emotion-grid">
+          <button type="button" class="emo-chip" data-emo="Inspired">🚀 Inspired</button>
+          <button type="button" class="emo-chip" data-emo="Calm">🌿 Calm</button>
+          <button type="button" class="emo-chip" data-emo="Challenged">🧩 Challenged</button>
+          <button type="button" class="emo-chip" data-emo="Curious">🔍 Curious</button>
+          <button type="button" class="emo-chip" data-emo="Motivated">⚡ Motivated</button>
+          <button type="button" class="emo-chip" data-emo="Grateful">🙏 Grateful</button>
+          <button type="button" class="emo-chip" data-emo="Reflective">🪞 Reflective</button>
+          <button type="button" class="emo-chip" data-emo="Empowered">💪 Empowered</button>
+        </div>
+        <input type="hidden" id="learning-emotion" value="" />
+        <input type="hidden" id="learning-page" value="" />
+      </div>
+      <div class="input-group">
+        <label>How will you apply this?</label>
+        <textarea id="learning-application" rows="2" placeholder="A real-world action or reflection…"></textarea>
+      </div>
+      <div class="input-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="learning-bookmark" />
+          🔖 Bookmark this learning
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" data-modal="add-learning-modal">Cancel</button>
+      <button class="btn-primary" id="save-learning-btn">Save Learning</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="modal-close" data-modal="settings-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Your Name</label>
+        <input type="text" id="settings-name" />
+      </div>
+      <div class="input-group">
+        <label>Anthropic API Key (for AI Insights)</label>
+        <input type="password" id="settings-api-key" placeholder="sk-ant-..." />
+        <small>Stored only in your browser. Never sent to our servers.</small>
+      </div>
+      <hr />
+      <button class="btn-danger" id="clear-data-btn">Clear all local data</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" data-modal="settings-modal">Cancel</button>
+      <button class="btn-primary" id="save-settings-btn">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ───── BOTTOM NAV (mobile only) ───── -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="bottom-nav-item active" data-view="library">
+    <span class="bnav-icon">🏛️</span>
+    <span>Library</span>
+  </button>
+  <button class="bottom-nav-item" data-view="bookmarks">
+    <span class="bnav-icon">🔖</span>
+    <span>Saved</span>
+  </button>
+  <div class="bottom-nav-fab">
+    <button class="fab-btn" id="fab-add-book" title="Add Book">＋</button>
+  </div>
+  <button class="bottom-nav-item" data-view="emotions">
+    <span class="bnav-icon">🎭</span>
+    <span>Mood</span>
+  </button>
+  <button class="bottom-nav-item" data-view="stats">
+    <span class="bnav-icon">📊</span>
+    <span>Stats</span>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+//  BookShelf App — app.js
+// ─────────────────────────────────────────
+
+// ── State ─────────────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz6Cg9do1lVCzWXjOGuhNqqrQUrpiHLq6szZePmkb--hBwW-8WlbqGXqzzYRQF5RxbC/exec';
+
+const state = {
+  books: [],
+  currentBookId: null,
+  settings: {
+    sheetUrl: SHEET_URL,
+    userName: '',
+    apiKey: ''
+  },
+  streak: 0,
+  lastReadDate: null
+};
+
+// ── Load from localStorage ─────────────────
+function loadState() {
+  try {
+    const books = localStorage.getItem('bs_books');
+    const settings = localStorage.getItem('bs_settings');
+    const streak = localStorage.getItem('bs_streak');
+    const lastRead = localStorage.getItem('bs_lastRead');
+    if (books) state.books = JSON.parse(books);
+    if (settings) state.settings = { ...state.settings, ...JSON.parse(settings) };
+    if (streak) state.streak = parseInt(streak);
+    if (lastRead) state.lastReadDate = lastRead;
+  } catch (e) { console.warn('State load error', e); }
+}
+
+function saveState() {
+  localStorage.setItem('bs_books', JSON.stringify(state.books));
+  localStorage.setItem('bs_settings', JSON.stringify(state.settings));
+  localStorage.setItem('bs_streak', state.streak);
+  if (state.lastReadDate) localStorage.setItem('bs_lastRead', state.lastReadDate);
+}
+
+// ── Streak logic ───────────────────────────
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (state.lastReadDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (state.lastReadDate === yesterday) {
+    state.streak++;
+  } else if (state.lastReadDate !== today) {
+    state.streak = 1;
+  }
+  state.lastReadDate = today;
+  saveState();
+}
+
+// ── ID generator ───────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+// ── Toast ──────────────────────────────────
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.className = 'toast'; }, 3200);
+}
+
+// ── Modal helpers ──────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-close, [data-modal]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.modal || btn.closest('.modal-overlay')?.id;
+    if (id) closeModal(id);
+  });
+});
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ── View navigation ────────────────────────
+function showView(viewId) {
+  // Sync bottom nav
+  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === viewId);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${viewId}`)?.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${viewId}"]`)?.classList.add('active');
+
+  const titles = {
+    library: 'My Library',
+    insights: 'Insights',
+    bookmarks: 'Bookmarks',
+    emotions: 'Mood Board',
+    stats: 'My Stats',
+    'book-detail': 'Book Detail'
+  };
+  document.getElementById('topbar-title').textContent = titles[viewId] || '';
+
+  if (viewId === 'library') renderLibrary();
+  if (viewId === 'bookmarks') renderBookmarks();
+  if (viewId === 'stats') renderStats();
+  if (viewId === 'emotions') resetEmotions();
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+// ── Sidebar ────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+document.getElementById('sidebar-close').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+});
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+
+// ── Greeting ───────────────────────────────
+function setGreeting() {
+  const h = new Date().getHours();
+  const time = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  const name = state.settings.userName ? `, ${state.settings.userName}` : '';
+  document.getElementById('greeting').textContent = `Good ${time}${name}`;
+}
+
+// ── Setup Screen ───────────────────────────
+function checkSetup() {
+  // Sheet URL is pre-configured — always go straight to app
+  if (!state.settings.sheetUrl) state.settings.sheetUrl = SHEET_URL;
+  enterApp();
+}
+
+function enterApp() {
+  document.getElementById('app-screen').classList.add('active');
+  init();
+}
+
+// ── Init ───────────────────────────────────
+function init() {
+  setGreeting();
+  updateStreak();
+  document.getElementById('reading-streak').querySelector('.streak-num').textContent = state.streak;
+  setupDelegatedListeners();
+  renderSidebarBooks();
+  renderLibrary();
+  setupFilters();
+  setupSearch();
+  // Load data from Google Sheet in the background
+  loadFromSheet();
+}
+
+// ── Delegated event listeners (survive re-renders) ──
+function setupDelegatedListeners() {
+  // Book cards in grid → open book
+  const grid = document.getElementById('books-grid');
+  if (grid) {
+    grid.addEventListener('click', e => {
+      const card = e.target.closest('.book-card');
+      if (card && card.dataset.id) openBook(card.dataset.id);
+    });
+  }
+
+  // Sidebar book items → open book
+  const sidebarList = document.getElementById('book-list-sidebar');
+  if (sidebarList) {
+    sidebarList.addEventListener('click', e => {
+      const item = e.target.closest('.sidebar-book-item');
+      if (item && item.dataset.id) openBook(item.dataset.id);
+    });
+  }
+
+  // Learning card actions (bookmark / delete)
+  const learningsList = document.getElementById('learnings-list');
+  if (learningsList) {
+    learningsList.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const book = state.books.find(b => b.id === state.currentBookId);
+      if (!book) return;
+      if (btn.dataset.action === 'bookmark') toggleBookmark(book.id, btn.dataset.lid);
+      if (btn.dataset.action === 'delete')   deleteLearning(book.id, btn.dataset.lid);
+    });
+  }
+
+  // Empty state "Add First Book" button — delegated via document
+  document.addEventListener('click', e => {
+    if (e.target && e.target.id === 'empty-add-btn') {
+      resetAddBookForm();
+      openModal('add-book-modal');
+    }
+  });
+}
+
+// ── Load all data from Google Sheet on startup ──
+async function loadFromSheet() {
+  try {
+    setSyncStatus('Loading from sheet…', false);
+    const url = SHEET_URL + '?action=getAllData&t=' + Date.now();
+    const res = await fetch(url);
+    if (!res.ok) { setSyncStatus('', false); return; }
+
+    const data = await res.json();
+    if (data.status !== 'ok' || !Array.isArray(data.books)) { setSyncStatus('', false); return; }
+    if (!data.books.length) { setSyncStatus('', false); return; }
+
+    // Merge sheet data into local state
+    // Sheet is source of truth for book metadata & learnings
+    // Local state preserves colour choices (not stored in sheet)
+    let changed = false;
+    data.books.forEach(sheetBook => {
+      const local = state.books.find(b => b.id === sheetBook.id);
+      if (local) {
+        // Merge: keep local colour, update everything else
+        sheetBook.color = local.color || sheetBook.color;
+        // Merge learnings — sheet wins for existing IDs, local adds new ones
+        const sheetIds = new Set(sheetBook.learnings.map(l => l.id));
+        const localOnly = (local.learnings || []).filter(l => !sheetIds.has(l.id));
+        sheetBook.learnings = [...sheetBook.learnings, ...localOnly];
+        // Replace the book in state
+        const idx = state.books.indexOf(local);
+        state.books[idx] = sheetBook;
+        changed = true;
+      } else {
+        // Book exists in sheet but not locally — add it
+        state.books.push(sheetBook);
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      saveState();
+      renderSidebarBooks();
+      renderLibrary();
+      setSyncStatus('☁ Loaded from sheet', false);
+      setTimeout(() => setSyncStatus('', false), 3000);
+    } else {
+      setSyncStatus('', false);
+    }
+  } catch (e) {
+    // Sheet load failure is non-fatal — local data still works
+    setSyncStatus('', false);
+  }
+}
+
+function setSyncStatus(msg, isError) {
+  const el = document.getElementById('sync-status');
+  if (el) el.textContent = msg;
+}
+
+// ── Render Sidebar Books ───────────────────
+function renderSidebarBooks() {
+  const container = document.getElementById('book-list-sidebar');
+  if (!state.books.length) { container.innerHTML = '<p style="font-size:0.75rem;color:rgba(245,240,232,0.3);padding:8px 12px;">No books yet</p>'; return; }
+  container.innerHTML = state.books.map(b => `
+    <div class="sidebar-book-item ${state.currentBookId === b.id ? 'active' : ''}" data-id="${b.id}">
+      <div class="sidebar-book-dot" style="background:${b.color}"></div>
+      <span>${b.title}</span>
+    </div>
+  `).join('');
+  // clicks handled by delegated listener set up in init()
+}
+
+// ── Render Library ─────────────────────────
+let currentFilter = 'all';
+
+function renderLibrary(filter = currentFilter, search = '') {
+  const grid = document.getElementById('books-grid');
+  const emptyEl = document.getElementById('empty-library');
+  let books = state.books;
+  if (filter !== 'all') books = books.filter(b => b.status === filter);
+  if (search) {
+    const q = search.toLowerCase();
+    books = books.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+  }
+
+  // Show/hide empty state (lives OUTSIDE grid, so no id conflicts)
+  if (emptyEl) emptyEl.style.display = books.length ? 'none' : '';
+
+  // Build only the book cards — nothing else goes in the grid
+  grid.innerHTML = books.map(b => {
+    const pct = progressPct(b);
+    const chRead = getChaptersRead(b);
+    const stars = b.rating ? '★'.repeat(b.rating) + '☆'.repeat(5 - b.rating) : '';
+    const chBar = b.totalChapters ? `
+      <div style='margin-top:10px'>
+        <div style='display:flex;justify-content:space-between;font-size:0.68rem;color:var(--ink-soft);margin-bottom:4px'>
+          <span>Ch. ${chRead} of ${b.totalChapters}</span>
+          <span>${pct}%</span>
+        </div>
+        <div style='height:4px;background:var(--parchment3);border-radius:2px;overflow:hidden'>
+          <div style='height:100%;width:${pct}%;background:${b.color};border-radius:2px'></div>
+        </div>
+      </div>` : '';
+    return `<div class='book-card' data-id='${b.id}'>
+      <div class='book-card-spine' style='background:${b.color}'></div>
+      <div class='book-card-body'>
+        <div class='book-card-title'>${escHtml(b.title)}</div>
+        <div class='book-card-author'>${escHtml(b.author)}</div>
+        <div class='book-card-meta'>
+          <span class='status-badge status-${b.status}'>${statusLabel(b.status)}</span>
+          <span class='book-card-learnings'>📝 ${(b.learnings||[]).length} learnings</span>
+        </div>
+        ${chBar}
+        ${b.genre ? `<div class='book-card-genre'>${escHtml(b.genre)}</div>` : ''}
+        ${stars ? `<div style='margin-top:8px;font-size:0.85rem;color:#C8A96E'>${stars}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setupFilters() {
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      renderLibrary(currentFilter, document.getElementById('search-input').value);
+    });
+  });
+}
+
+function setupSearch() {
+  document.getElementById('search-input').addEventListener('input', e => {
+    renderLibrary(currentFilter, e.target.value);
+  });
+}
+
+// ── Add Book ───────────────────────────────
+let selectedRating = 0;
+let selectedColor = '#6B4E3D';
+
+function setupAddBook() {
+  // Star rating
+  document.querySelectorAll('#book-rating-stars .star').forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.val);
+      document.getElementById('book-rating').value = selectedRating;
+      highlightStars(selectedRating);
+    });
+    star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.val)));
+    star.addEventListener('mouseout', () => highlightStars(selectedRating));
+  });
+
+  // Color swatches
+  document.querySelectorAll('.color-swatch').forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      selectedColor = swatch.dataset.color;
+      document.getElementById('book-color').value = selectedColor;
+    });
+  });
+  document.querySelector('.color-swatch')?.classList.add('selected');
+
+  document.getElementById('add-book-btn').addEventListener('click', () => {
+    resetAddBookForm();
+    openModal('add-book-modal');
+  });
+  // empty-add-btn handled via document delegation in setupDelegatedListeners
+
+  document.getElementById('save-book-btn').addEventListener('click', saveBook);
+}
+
+function resetAddBookForm() {
+  ['book-title', 'book-author', 'book-intention', 'book-chapters'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('book-genre').value = '';
+  document.getElementById('book-status').value = 'want-to-read';
+  selectedRating = 0;
+  highlightStars(0);
+  selectedColor = '#6B4E3D';
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  document.querySelector('.color-swatch')?.classList.add('selected');
+}
+
+function highlightStars(n) {
+  document.querySelectorAll('#book-rating-stars .star').forEach((s, i) => {
+    s.classList.toggle('lit', i < n);
+  });
+}
+
+function saveBook() {
+  const title = document.getElementById('book-title').value.trim();
+  const author = document.getElementById('book-author').value.trim();
+  if (!title || !author) { toast('Title and Author are required', 'error'); return; }
+
+  const totalChapters = parseInt(document.getElementById('book-chapters').value) || 0;
+  const book = {
+    id: uid(),
+    title,
+    author,
+    genre: document.getElementById('book-genre').value,
+    status: document.getElementById('book-status').value,
+    rating: parseInt(document.getElementById('book-rating').value) || 0,
+    color: document.getElementById('book-color').value || '#6B4E3D',
+    intention: document.getElementById('book-intention').value.trim(),
+    totalChapters,
+    learnings: [],
+    createdAt: new Date().toISOString(),
+    completedAt: null
+  };
+
+  state.books.unshift(book);
+  saveState();
+  closeModal('add-book-modal');
+  renderSidebarBooks();
+  renderLibrary();
+  toast(`"${book.title}" added to your library`);
+
+  // Sync to Google Sheets
+  syncBookToSheet(book);
+}
+
+// ── Open Book Detail ───────────────────────
+// ── Render Progress Section ─────────────────
+function renderProgressSection(book) {
+  const pct = progressPct(book);
+  const chaptersRead = book.totalChapters ? getChaptersRead(book) : null;
+  const uniqueChapters = getUniqueChaptersRead(book);
+
+  // Chapter dot visualisation (only for books with ≤50 chapters)
+  let dotsHtml = '';
+  if (book.totalChapters && book.totalChapters <= 50) {
+    dotsHtml = '<div class="chapter-dots">';
+    for (let i = 1; i <= book.totalChapters; i++) {
+      const isDone = uniqueChapters.includes(i);
+      const style = isDone ? `background:${book.color};border-color:${book.color}` : '';
+      dotsHtml += `<div class="chapter-dot${isDone ? ' done' : ''}" style="${style}" title="Ch. ${i}${isDone ? ' ✓' : ''}"><span class="chapter-dot-tip">Ch. ${i}${isDone ? ' ✓' : ''}</span></div>`;
+    }
+    dotsHtml += '</div>';
+  }
+
+  const chaptersLabel = book.totalChapters
+    ? `<span class="chapter-count-display" style="color:${book.color}">${chaptersRead}</span><span class="chapter-count-total"> / ${book.totalChapters} chapters</span>`
+    : `<span class="chapter-count-display" style="color:${book.color};font-size:1rem">${(book.learnings || []).length} learnings</span>`;
+
+  const setChapBtn = !book.totalChapters
+    ? `<button class="set-chapters-btn" id="set-chapters-btn">+ Set total chapters</button>`
+    : `<button class="set-chapters-btn" id="set-chapters-btn">✏ ${book.totalChapters} chapters</button>`;
+
+  document.getElementById('progress-section').innerHTML = `
+    <div class="chapter-progress-block">
+      <div class="chapter-progress-header">
+        <div>
+          <div class="chapter-progress-title">Reading Progress</div>
+          <div class="chapter-counter" style="margin-top:6px">${chaptersLabel}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:${book.color};line-height:1">${pct}%</div>
+          ${setChapBtn}
+        </div>
+      </div>
+      <div class="chapter-progress-bar-bg">
+        <div class="chapter-progress-bar-fill" style="width:${pct}%;background:${book.color}"></div>
+      </div>
+      <div class="chapter-progress-labels">
+        <span>Start</span>
+        <span>${pct === 100 ? '🎉 Finished!' : pct > 0 ? 'In Progress' : 'Not started'}</span>
+        <span>End</span>
+      </div>
+      ${dotsHtml}
+      ${book.intention ? `<div class="intention-box">🎯 ${escHtml(book.intention)}</div>` : ''}
+    </div>
+  `;
+
+  document.getElementById('set-chapters-btn').addEventListener('click', () => {
+    const val = prompt(`How many chapters does "${book.title}" have?`, book.totalChapters || '');
+    if (val === null) return;
+    const n = parseInt(val);
+    if (isNaN(n) || n < 1) { toast('Please enter a valid number', 'error'); return; }
+    book.totalChapters = n;
+    saveState();
+    renderProgressSection(book);
+    populateChapterSelect(book);
+    toast(`Set to ${n} chapters`);
+  });
+}
+
+function openBook(id) {
+  const book = state.books.find(b => b.id === id);
+  if (!book) return;
+  state.currentBookId = id;
+
+  // Update detail header
+  document.getElementById('detail-book-info').innerHTML = `
+    <div class="detail-book-title">${escHtml(book.title)}</div>
+    <div class="detail-book-author">by ${escHtml(book.author)}</div>
+    <div class="detail-book-badges">
+      <span class="status-badge status-${book.status}">${statusLabel(book.status)}</span>
+      ${book.genre ? `<span class="status-badge" style="background:var(--parchment2);color:var(--ink-soft)">${book.genre}</span>` : ''}
+      ${book.rating ? `<span style="color:var(--brass);font-size:0.9rem">${'★'.repeat(book.rating)}</span>` : ''}
+    </div>
+  `;
+
+  // Progress
+  renderProgressSection(book);
+
+  renderLearnings(book);
+  renderSidebarBooks();
+  showView('book-detail');
+
+  document.getElementById('topbar-title').textContent = book.title;
+  updateStreak();
+}
+
+function progressPct(book) {
+  if (book.status === 'completed') return 100;
+  if (book.status === 'want-to-read') return 0;
+  if (!book.totalChapters) {
+    // Fallback: estimate from learnings count
+    const total = (book.learnings || []).length;
+    return total > 0 ? Math.min(95, 10 + total * 5) : 5;
+  }
+  const chaptersRead = getChaptersRead(book);
+  return Math.round((chaptersRead / book.totalChapters) * 100);
+}
+
+function getChaptersRead(book) {
+  // Find the highest chapter number referenced in learnings
+  const chapters = (book.learnings || [])
+    .map(l => l.chapter)
+    .filter(c => c != null && !isNaN(c));
+  if (!chapters.length) return 0;
+  return Math.max(...chapters);
+}
+
+function getUniqueChaptersRead(book) {
+  const seen = new Set((book.learnings || [])
+    .map(l => l.chapter)
+    .filter(c => c != null && !isNaN(c)));
+  return [...seen].sort((a,b) => a-b);
+}
+
+// ── Render Learnings ───────────────────────
+let learningFilter = 'all';
+
+function renderLearnings(book, filter = learningFilter) {
+  const list = document.getElementById('learnings-list');
+  let learnings = book.learnings || [];
+  if (filter === 'bookmarked') learnings = learnings.filter(l => l.bookmarked);
+
+  if (!learnings.length) {
+    list.innerHTML = `
+      <div class="empty-state" style="padding:40px 20px">
+        <div class="empty-icon">💡</div>
+        <h3>${filter === 'bookmarked' ? 'No bookmarks yet' : 'No learnings yet'}</h3>
+        <p>Capture your first insight from this book.</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = learnings.map(l => `
+    <div class="learning-card" data-lid="${l.id}">
+      <div class="learning-card-top">
+        <div class="learning-meta">
+          <span class="cat-badge">${categoryIcon(l.category)} ${l.category}</span>
+          ${l.emotion ? `<span class="emo-badge">${l.emotion}</span>` : ''}
+          ${l.chapter ? `<span class="chapter-badge-inline">Ch. ${l.chapter}</span>` : l.page ? `<span class="chapter-badge-inline">${escHtml(l.page)}</span>` : ''}
+        </div>
+        <div class="learning-actions">
+          <button class="action-mini-btn ${l.bookmarked ? 'bookmarked' : ''}" data-action="bookmark" data-lid="${l.id}" title="Bookmark">🔖</button>
+          <button class="action-mini-btn" data-action="delete" data-lid="${l.id}" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="learning-text">${escHtml(l.text)}</div>
+      ${l.application ? `<div class="learning-application">→ ${escHtml(l.application)}</div>` : ''}
+      <div class="learning-date">${formatDate(l.createdAt)}</div>
+    </div>
+  `).join('');
+
+  // clicks handled by delegated listener set up in init()
+}
+
+// Learning filter
+document.querySelectorAll('.lfilter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lfilter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    learningFilter = btn.dataset.lfilter;
+    const book = state.books.find(b => b.id === state.currentBookId);
+    if (book) renderLearnings(book, learningFilter);
+  });
+});
+
+function toggleBookmark(bookId, learningId) {
+  const book = state.books.find(b => b.id === bookId);
+  const l = book?.learnings?.find(x => x.id === learningId);
+  if (!l) return;
+  l.bookmarked = !l.bookmarked;
+  saveState();
+  renderLearnings(book, learningFilter);
+  toast(l.bookmarked ? 'Bookmarked!' : 'Bookmark removed');
+}
+
+function deleteLearning(bookId, learningId) {
+  const book = state.books.find(b => b.id === bookId);
+  if (!book) return;
+  book.learnings = book.learnings.filter(l => l.id !== learningId);
+  saveState();
+  renderLearnings(book, learningFilter);
+  toast('Learning deleted');
+}
+
+// ── Populate chapter dropdown for current book ──
+function populateChapterSelect(book) {
+  const sel = document.getElementById('learning-chapter');
+  if (!sel) return;
+  const total = book?.totalChapters || 0;
+  const hint = document.getElementById('learning-chapter-hint');
+
+  sel.innerHTML = '<option value="">Select chapter…</option>';
+
+  if (total > 0) {
+    for (let i = 1; i <= total; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `Chapter ${i}`;
+      sel.appendChild(opt);
+    }
+    if (hint) hint.textContent = `(${total} total)`;
+  } else {
+    // No chapters set — allow free numeric input via a text-type fallback
+    for (let i = 1; i <= 30; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `Chapter ${i}`;
+      sel.appendChild(opt);
+    }
+    if (hint) hint.textContent = '(set total in book detail)';
+  }
+
+  // Pre-select the latest chapter read
+  const chaptersRead = getChaptersRead(book);
+  if (chaptersRead) sel.value = chaptersRead;
+}
+
+// ── Add Learning Modal ─────────────────────
+let selectedEmotion = '';
+
+function setupAddLearning() {
+  document.getElementById('add-learning-btn').addEventListener('click', () => {
+    resetLearningForm();
+    const book = state.books.find(b => b.id === state.currentBookId);
+    populateChapterSelect(book);
+    openModal('add-learning-modal');
+  });
+
+  document.querySelectorAll('.emo-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.emo-chip').forEach(c => c.classList.remove('selected'));
+      if (selectedEmotion === chip.dataset.emo) {
+        selectedEmotion = '';
+        document.getElementById('learning-emotion').value = '';
+      } else {
+        chip.classList.add('selected');
+        selectedEmotion = chip.dataset.emo;
+        document.getElementById('learning-emotion').value = selectedEmotion;
+      }
+    });
+  });
+
+  document.getElementById('save-learning-btn').addEventListener('click', saveLearning);
+}
+
+function resetLearningForm() {
+  // Null-safe reset — some hidden fields may not exist
+  ['learning-text', 'learning-page', 'learning-application', 'learning-emotion'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const cat = document.getElementById('learning-category');
+  if (cat) cat.value = 'Insight';
+  const chap = document.getElementById('learning-chapter');
+  if (chap) chap.value = '';
+  const bm = document.getElementById('learning-bookmark');
+  if (bm) bm.checked = false;
+  selectedEmotion = '';
+  document.querySelectorAll('.emo-chip').forEach(c => c.classList.remove('selected'));
+}
+
+function saveLearning() {
+  const text = document.getElementById('learning-text').value.trim();
+  if (!text) { toast('Please enter a learning', 'error'); return; }
+
+  const book = state.books.find(b => b.id === state.currentBookId);
+  if (!book) return;
+
+  const chapterVal = document.getElementById('learning-chapter').value;
+  // Set page field value from chapter selection for display
+  if (chapterVal) document.getElementById('learning-page').value = 'Ch. ' + chapterVal;
+
+  const learning = {
+    id: uid(),
+    text,
+    chapter: chapterVal ? parseInt(chapterVal) : null,
+    page: chapterVal ? 'Ch. ' + chapterVal : '',
+    category: document.getElementById('learning-category').value,
+    emotion: document.getElementById('learning-emotion').value,
+    application: document.getElementById('learning-application').value.trim(),
+    bookmarked: document.getElementById('learning-bookmark').checked,
+    createdAt: new Date().toISOString()
+  };
+
+  if (!book.learnings) book.learnings = [];
+  book.learnings.unshift(learning);
+
+  // Update status if still want-to-read
+  if (book.status === 'want-to-read') book.status = 'reading';
+
+  saveState();
+  updateStreak();
+  document.getElementById('reading-streak').querySelector('.streak-num').textContent = state.streak;
+  closeModal('add-learning-modal');
+  renderLearnings(book, learningFilter);
+  openBook(book.id); // refresh progress
+  toast('Learning saved!');
+
+  syncLearningToSheet(book, learning);
+}
+
+// ── Back to Library ────────────────────────
+document.getElementById('back-to-library').addEventListener('click', () => {
+  state.currentBookId = null;
+  showView('library');
+  renderSidebarBooks();
+});
+
+// ── Bookmarks View ─────────────────────────
+function renderBookmarks() {
+  const container = document.getElementById('bookmarks-list');
+  const bookmarked = [];
+  state.books.forEach(book => {
+    (book.learnings || []).filter(l => l.bookmarked).forEach(l => {
+      bookmarked.push({ book, learning: l });
+    });
+  });
+
+  if (!bookmarked.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><h3>No bookmarks yet</h3><p>Bookmark key learnings while reading to save them here.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = bookmarked.map(({ book, learning }) => `
+    <div class="bookmark-card">
+      <div class="bookmark-book-name" style="color:${book.color}">${escHtml(book.title)}</div>
+      <div class="bookmark-text">${escHtml(learning.text)}</div>
+      ${learning.emotion ? `<div style="margin-top:8px;font-size:0.75rem;color:var(--ink-soft)">${learning.emotion}</div>` : ''}
+      <div style="margin-top:10px;font-size:0.72rem;color:var(--parchment3);font-family:'JetBrains Mono',monospace">${formatDate(learning.createdAt)}</div>
+    </div>
+  `).join('');
+}
+
+// ── Stats View ─────────────────────────────
+function renderStats() {
+  const total = state.books.length;
+  const completed = state.books.filter(b => b.status === 'completed').length;
+  const reading = state.books.filter(b => b.status === 'reading').length;
+  const totalLearnings = state.books.reduce((acc, b) => acc + (b.learnings || []).length, 0);
+  const totalBookmarks = state.books.reduce((acc, b) => acc + (b.learnings || []).filter(l => l.bookmarked).length, 0);
+
+  const genres = {};
+  state.books.forEach(b => { if (b.genre) genres[b.genre] = (genres[b.genre] || 0) + 1; });
+  const topGenre = Object.entries(genres).sort((a, b) => b[1] - a[1])[0];
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Books</div></div>
+    <div class="stat-card"><div class="stat-num">${completed}</div><div class="stat-label">Completed</div></div>
+    <div class="stat-card"><div class="stat-num">${reading}</div><div class="stat-label">Reading Now</div></div>
+    <div class="stat-card"><div class="stat-num">${totalLearnings}</div><div class="stat-label">Key Learnings</div></div>
+    <div class="stat-card"><div class="stat-num">${totalBookmarks}</div><div class="stat-label">Bookmarks</div></div>
+    <div class="stat-card"><div class="stat-num">${state.streak}</div><div class="stat-label">Day Streak</div></div>
+    ${topGenre ? `<div class="stat-card"><div class="stat-num" style="font-size:1.2rem">${topGenre[0]}</div><div class="stat-label">Fav Genre</div></div>` : ''}
+  `;
+
+  const timeline = document.getElementById('reading-timeline');
+  const sorted = [...state.books].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
+  timeline.innerHTML = `
+    <h3>Recent Activity</h3>
+    ${sorted.map(b => `
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:${b.color}"></div>
+        <div>
+          <div class="timeline-title">${escHtml(b.title)}</div>
+          <div class="timeline-meta">${statusLabel(b.status)} · ${(b.learnings || []).length} learnings · Added ${formatDate(b.createdAt)}</div>
+        </div>
+      </div>
+    `).join('')}
+    ${!sorted.length ? '<p style="color:var(--ink-soft);font-size:0.85rem">No books yet.</p>' : ''}
+  `;
+}
+
+// ── Emotions View ──────────────────────────
+function resetEmotions() {
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('emotion-results').innerHTML = '';
+}
+
+document.querySelectorAll('.emotion-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    await showEmotionResults(btn.dataset.emotion);
+  });
+});
+
+async function showEmotionResults(emotion) {
+  const results = document.getElementById('emotion-results');
+  const matched = [];
+  state.books.forEach(book => {
+    const learnings = (book.learnings || []).filter(l => l.emotion === emotion);
+    if (learnings.length) matched.push({ book, learnings });
+  });
+
+  if (!matched.length) {
+    results.innerHTML = `<p style="color:var(--ink-soft);margin-top:16px">No learnings tagged with "${emotion}" yet. Add that emotion when capturing a learning!</p>`;
+    return;
+  }
+
+  results.innerHTML = matched.map(({ book, learnings }) => `
+    <div class="emotion-book-group">
+      <h3 style="color:${book.color}">${escHtml(book.title)}</h3>
+      ${learnings.map(l => `<div class="emotion-learning-item">${escHtml(l.text)}</div>`).join('')}
+    </div>
+  `).join('');
+
+  // AI insight on emotion
+  if (state.settings.apiKey && matched.length) {
+    results.innerHTML += `<div class="emotion-ai-box"><span class="thinking">Generating insight on "${emotion}"…</span></div>`;
+    const allTexts = matched.flatMap(m => m.learnings.map(l => l.text)).join('\n- ');
+    const insight = await callClaude(`The user felt "${emotion}" while reading. Here are the learnings that evoked this emotion:\n\n- ${allTexts}\n\nGive a thoughtful, personal reflection (3-4 sentences) on what this emotion pattern reveals about the user's growth and values. Be specific and warm.`);
+    document.querySelector('.emotion-ai-box').innerHTML = `<strong style="color:var(--brass)">✨ Reflection on "${emotion}"</strong><br/><br/>${escHtml(insight)}`;
+  }
+}
+
+// ── AI Insights View ───────────────────────
+function setupInsights() {
+  document.getElementById('get-insight-btn').addEventListener('click', async () => {
+    const book = state.books.find(b => b.id === state.currentBookId);
+    if (!book) return;
+    const panel = document.getElementById('ai-insight-panel');
+    const body = document.getElementById('insight-body');
+    panel.style.display = 'block';
+    body.innerHTML = '<span class="thinking">Generating insight…</span>';
+
+    const learnings = (book.learnings || []).map(l => l.text).join('\n- ');
+    const prompt = `Book: "${book.title}" by ${book.author}\nGenre: ${book.genre || 'Unknown'}\nReader's intention: ${book.intention || 'Not specified'}\n\nKey learnings captured:\n- ${learnings || 'None yet'}\n\nProvide a thoughtful, personalised insight (4-5 sentences) that connects the learnings, highlights patterns, and suggests one practical action the reader can take based on what they've read. Be specific, warm, and wise.`;
+    const result = await callClaude(prompt);
+    body.innerHTML = escHtml(result).replace(/\n/g, '<br>');
+  });
+
+  document.getElementById('close-insight').addEventListener('click', () => {
+    document.getElementById('ai-insight-panel').style.display = 'none';
+  });
+
+  document.getElementById('cross-insight-btn').addEventListener('click', async () => {
+    const el = document.getElementById('cross-insight-result');
+    el.innerHTML = '<span class="thinking">Thinking…</span>';
+    const summaries = state.books.map(b => `"${b.title}" (${b.genre || '?'}): ${(b.learnings || []).slice(0, 3).map(l => l.text).join('; ')}`).join('\n');
+    if (!summaries) { el.innerHTML = 'Add some books and learnings first!'; return; }
+    const result = await callClaude(`I'm a reader who has been tracking learnings across multiple books. Here's a summary:\n${summaries}\n\nWhat recurring themes, values, or ideas appear across these books? What does this say about my intellectual interests and growth areas? Be specific and insightful (5-6 sentences).`);
+    el.textContent = result;
+  });
+
+  document.getElementById('next-focus-btn').addEventListener('click', async () => {
+    const el = document.getElementById('next-focus-result');
+    el.innerHTML = '<span class="thinking">Thinking…</span>';
+    const books = state.books.map(b => `"${b.title}" — status: ${b.status}, genre: ${b.genre || '?'}, learnings: ${(b.learnings || []).length}`).join('\n');
+    if (!books) { el.innerHTML = 'Add some books first!'; return; }
+    const result = await callClaude(`Here are my books:\n${books}\n\nBased on what I'm reading and have read, what should I focus on learning or exploring next? Suggest 2-3 specific ideas (a topic, a practice, or a type of book) and briefly explain why each fits my reading pattern. Be actionable.`);
+    el.textContent = result;
+  });
+
+  document.getElementById('random-wisdom-btn').addEventListener('click', () => {
+    const el = document.getElementById('random-wisdom-result');
+    const all = state.books.flatMap(b => (b.learnings || []).map(l => ({ ...l, bookTitle: b.title })));
+    if (!all.length) { el.textContent = 'No learnings yet. Start capturing!'; return; }
+    const pick = all[Math.floor(Math.random() * all.length)];
+    el.innerHTML = `<em>"${escHtml(pick.text)}"</em><br><small style="color:var(--brass)">— from ${escHtml(pick.bookTitle)}</small>`;
+  });
+}
+
+// ── Claude API call ────────────────────────
+async function callClaude(prompt) {
+  if (!state.settings.apiKey) {
+    return '✨ To get AI insights, add your Anthropic API key in Settings.';
+  }
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': state.settings.apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 512,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) return `Error: ${data.error.message}`;
+    return data.content?.[0]?.text || 'No response.';
+  } catch (e) {
+    return `Could not connect to AI: ${e.message}`;
+  }
+}
+
+// ── Google Sheets Sync ─────────────────────
+async function syncBookToSheet(book) {
+  if (!state.settings.sheetUrl) state.settings.sheetUrl = SHEET_URL;
+  if (!state.settings.sheetUrl) return;
+  const status = document.getElementById('sync-status');
+  status.textContent = 'Syncing…';
+  try {
+    await fetch(state.settings.sheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'addBook', book })
+    });
+    status.textContent = '☁ Synced';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  } catch (e) {
+    status.textContent = 'Sync failed';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  }
+}
+
+async function syncLearningToSheet(book, learning) {
+  if (!state.settings.sheetUrl) state.settings.sheetUrl = SHEET_URL;
+  if (!state.settings.sheetUrl) return;
+  const status = document.getElementById('sync-status');
+  status.textContent = 'Syncing…';
+  try {
+    await fetch(state.settings.sheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'addLearning', bookTitle: book.title, bookId: book.id, learning })
+    });
+    status.textContent = '☁ Synced';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  } catch (e) {
+    status.textContent = 'Sync failed';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  }
+}
+
+document.getElementById('sync-btn').addEventListener('click', async () => {
+  toast('Pushing all data to Google Sheets…');
+  const status = document.getElementById('sync-status');
+  for (const book of state.books) {
+    await syncBookToSheet(book);
+    for (const learning of (book.learnings || [])) {
+      await syncLearningToSheet(book, learning);
+    }
+  }
+  toast('All data synced! Reloading from sheet…');
+  await loadFromSheet();
+});
+
+// ── Settings ───────────────────────────────
+function setupSettings() {
+  document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('settings-name').value = state.settings.userName;
+    document.getElementById('settings-api-key').value = state.settings.apiKey;
+    openModal('settings-modal');
+  });
+
+  document.getElementById('save-settings-btn').addEventListener('click', () => {
+    state.settings.userName = document.getElementById('settings-name').value.trim();
+    state.settings.apiKey = document.getElementById('settings-api-key').value.trim();
+    saveState();
+    closeModal('settings-modal');
+    setGreeting();
+    toast('Settings saved');
+  });
+
+  document.getElementById('clear-data-btn').addEventListener('click', () => {
+    if (confirm('This will delete ALL your books and learnings. Are you sure?')) {
+      localStorage.clear();
+      location.reload();
+    }
+  });
+}
+
+// ── Helpers ────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function statusLabel(s) {
+  return { 'reading': 'Reading', 'completed': 'Completed', 'want-to-read': 'Want to Read' }[s] || s;
+}
+
+function categoryIcon(cat) {
+  return { Insight: '💡', Quote: '💬', Action: '✅', Question: '❓', Concept: '🧠', Story: '📖' }[cat] || '💡';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+
+// ── Bottom Nav (mobile) ───────────────────
+function setupBottomNav() {
+  const nav = document.getElementById('bottom-nav');
+
+  function showBottomNav() {
+    nav.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  }
+
+  showBottomNav();
+  window.addEventListener('resize', showBottomNav);
+
+  document.querySelectorAll('.bottom-nav-item[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showView(btn.dataset.view);
+    });
+  });
+
+  // FAB opens add-book modal
+  document.getElementById('fab-add-book').addEventListener('click', () => {
+    resetAddBookForm();
+    openModal('add-book-modal');
+  });
+}
+
+// ── Bootstrap ──────────────────────────────
+loadState();
+checkSetup();
+setupAddBook();
+setupAddLearning();
+setupInsights();
+setupSettings();
+setupBottomNav();
+
+</script>
+</body>
+</html>
